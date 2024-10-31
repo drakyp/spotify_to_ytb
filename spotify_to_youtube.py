@@ -3,7 +3,6 @@ from flask import Flask, request, url_for, session, redirect
 import spotipy 
 import time 
 from spotipy.oauth2 import SpotifyOAuth
-import google_oauth2.credentials
 from google_auth_oauthlib.flow import Flow
 from googleapiclient.discovery import build
 
@@ -31,11 +30,11 @@ def redirectPage():
 
 @app.route('/getTracks')
 def getTracks():
-    #try:
-    token_info = get_token()
-    #except:
-        #print("user not logged in")
-       # return redirect(url_for("login", __external = False))
+    try:
+        token_info = get_token()
+    except:
+        print("user not logged in")
+        return redirect(url_for('login', _external = False))
     sp = spotipy.Spotify(auth= token_info['access_token'])
     all_song = []
     iter = 0
@@ -52,20 +51,22 @@ def getTracks():
 # i have 1hour with the current working token thus it should be ok 
 def get_token():
     token_info = session.get(TOKEN_INFO, None)
-   #if not token_info: # we want it to be none
-   #     raise Exception("token info is missing")
-    '''now = int(time.time()) # get the current time 
-
-    is_expired = token_info['expired_at'] - now < 60 #check if the token will expire soon
-    if is_expired: #if it is we create a new one
+    if not token_info: # we want it to be none
+        raise Exception("token info is missing")
+    
+    now = int(time.time()) # get the current time 
+    if 'expires_at' in token_info and token_info['expires_at'] - now < 60:
         sp_oauth = create_spotify_oauth()
-        token_info = sp_oauth.refresh_access_token(token_info['refresh_token']) #give the refresh token'''
+        token_info = sp_oauth.refresh_access_token(token_info['refresh_token']) #give the refresh token
+        session[TOKEN_INFO] = token_info # update the token info
     return token_info   #return the token to use it
 
 
 def create_spotify_oauth():
+    redirect_uri = url_for('redirectPage', _external = True)
+    print(f"redirect url {redirect_uri}")
     return SpotifyOAuth (
         client_id = "9bd2a1a7000747058f80f6d95f4bb31a",
         client_secret = "cd1105a307404b5bba44442914ff711f",
-        redirect_uri = url_for('redirectPage', _external = True),
+        redirect_uri = redirect_uri,
         scope = "user-library-read")
