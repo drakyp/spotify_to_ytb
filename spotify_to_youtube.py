@@ -3,15 +3,14 @@ from flask import Flask, request, url_for, session, redirect
 import spotipy 
 import time 
 from spotipy.oauth2 import SpotifyOAuth
-from google_auth_oauthlib.flow import Flow
-from googleapiclient.discovery import build
-
 
 app = Flask(__name__)
 
 app.secret_key = "Sviosnfvso03423s"
 app.config['SESSION_COOKIE_NAME'] = 'William Cookie'
 TOKEN_INFO = "token_info" #key to get the information in the session dictonary 
+client_id = "9bd2a1a7000747058f80f6d95f4bb31a"
+
 
 @app.route('/')
 def login():
@@ -39,13 +38,14 @@ def getTracks():
         return redirect(url_for('login', _external = False))
     sp = spotipy.Spotify(auth= token_info['access_token']) # retrieve the information needed in the access token 
     all_song = [] #do a list to store all the song
-    iter = 0
+    iter = 0 
     while True: #while loop beceause the limit is 50 and if their are more music or less we have to break basically continue until we saw all the music 
-        items = sp.current_user_saved_tracks(limit = 50, offset=iter * 50)['items'] 
+        items = sp.current_user_playlists(limit=50, offset= iter * 50 )['items']
         iter += 1
         all_song += items
         if(len(items) < 50 ):
             break
+    #all_song = get_album_track(token_info, all_song)
     return str(all_song)
 
 
@@ -66,23 +66,33 @@ def get_token():
     return token_info   #return the token to use it
 
 
-''' HERE I WANT TO CREATE A FUNCTION THAT TRAVERSE ALL THE PLAYLIST THAT I HAVE SAVED THEN CALL GET TRACKS ON EACH PLAYLIST 
-def get_album():
-    try:
-        token_info = get_token() #try to get the token 
-    except:
-        print("user not logged in") #if they cannot get the token we print this and redirect the user to the login page 
-        return redirect(url_for('login', _external = False))
+
+
+
+
+
+# HERE I WANT TO CREATE A FUNCTION THAT TRAVERSE ALL THE PLAYLIST THAT I HAVE SAVED THEN CALL GET TRACKS ON EACH PLAYLIST 
+def get_album_track(token_info, all_song):
     sp = spotipy.Spotify(auth= token_info['access_token']) # retrieve the information needed in the access token 
-    all_song = [] #do a list to store all the song
-    iter = 0
-    while True: #while loop beceause the limit is 50 and if their are more music or less we have to break basically continue until we saw all the music 
-        items = sp.current_user_saved_tracks(limit = 50, offset=iter * 50)['items'] 
-        iter += 1
-        all_song += items
-        if(len(items) < 50 ):
-            break
-    return str(all_song)'''
+    for i in range (len(all_song)):
+        all_song_album = [] #do a list to store all the song in the playlist
+        playlist_id = all_song[i]['id']
+        iter = 0
+        while True: #while loop beceause the limit is 50 and if their are more music or less we have to break basically continue until we saw all the music 
+            items = sp.playlist_items(playlist_id, limit=100, offset= iter * 100)
+            iter += 1
+            all_song_album += items
+            if(len(items) < 50 ):
+                break
+        all_song[i] = all_song_album
+    return all_song
+
+
+
+
+
+
+
 
 
 def create_spotify_oauth():
