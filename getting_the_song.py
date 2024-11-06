@@ -98,11 +98,6 @@ def get_album_track(token_info, all_playlist):
 
 
 
-
-
-
-
-
 def create_spotify_oauth():
     redirect_uri = url_for('redirectPage', _external = True)
     print(f"redirect url {redirect_uri}")

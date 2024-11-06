@@ -1,0 +1,6 @@
+from bs4 import BeautifulSoup
+from requests_html import HTLMSession
+from pathlib import Path
+import youtube_dl
+import pandas 
+import os 
