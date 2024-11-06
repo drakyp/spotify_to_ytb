@@ -28,7 +28,7 @@ def redirectPage():
     return redirect(url_for('getTracks', _external = True))
 
 
-
+#creer un matrice des le debut pour ensuite le faire fonctionner et l'utiliser et bien le faire  
 @app.route('/getTracks')
 def getTracks():
     try:
@@ -37,16 +37,16 @@ def getTracks():
         print("user not logged in") #if they cannot get the token we print this and redirect the user to the login page 
         return redirect(url_for('login', _external = False))
     sp = spotipy.Spotify(auth= token_info['access_token']) # retrieve the information needed in the access token 
-    all_song = [] #do a list to store all the song
+    all_playlist = [] #do a list to store all the song
     iter = 0 
-    while True: #while loop beceause the limit is 50 and if their are more music or less we have to break basically continue until we saw all the music 
+    while True: #while loop beceause the limit is 50 and if their are more music or less we have to break basicall_playlisty continue until we saw all the music 
         items = sp.current_user_playlists(limit=50, offset= iter * 50 )['items']
         iter += 1
-        all_song += items
+        all_playlist += items
         if(len(items) < 50 ):
             break
-    #all_song = get_album_track(token_info, all_song)
-    return str(all_song)
+    get_album_track(token_info, all_playlist)
+    return str(all_playlist)
 
 
 # when checking with the time it don't work and i don't know why thus i am keeping it like this 
@@ -71,21 +71,29 @@ def get_token():
 
 
 
-# HERE I WANT TO CREATE A FUNCTION THAT TRAVERSE ALL THE PLAYLIST THAT I HAVE SAVED THEN CALL GET TRACKS ON EACH PLAYLIST 
-def get_album_track(token_info, all_song):
+# HERE I WANT TO CREATE A FUNCTION THAT TRAVERSE all_playlist THE PLAYLIST THAT I HAVE SAVED THEN CALL GET TRACKS ON EACH PLAYLIST 
+def get_album_track(token_info, all_playlist):
     sp = spotipy.Spotify(auth= token_info['access_token']) # retrieve the information needed in the access token 
-    for i in range (len(all_song)):
-        all_song_album = [] #do a list to store all the song in the playlist
-        playlist_id = all_song[i]['id']
+    for i in range (len(all_playlist)):
+        all_song = [] #do a list to store all the song in the playlist
+        playlist_id = all_playlist[i]['id']
         iter = 0
-        while True: #while loop beceause the limit is 50 and if their are more music or less we have to break basically continue until we saw all the music 
-            items = sp.playlist_items(playlist_id, limit=100, offset= iter * 100)
+        while True: #while loop beceause the limit is 50 and if their are more music or less we have to break basicall_playlisty continue until we saw all the music 
+            items = sp.playlist_items(playlist_id, limit=100, offset= iter * 100)['items']
             iter += 1
-            all_song_album += items
-            if(len(items) < 50 ):
+            for it in items:
+                track = it['track']
+                track_info = {
+                    'name' : track['name'],
+                    'artist': ", ".join([artist['name']for artist in track['artists']]),
+                    'album' : track['album']['name'],
+                    'track_id' : track['id']
+                }
+                all_song.append(track_info)
+            if(len(items) < 100 ):
                 break
-        all_song[i] = all_song_album
-    return all_song
+        all_playlist.append( all_song)
+    #return all_playlist
 
 
 
