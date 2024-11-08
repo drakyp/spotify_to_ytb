@@ -40,10 +40,10 @@ def getTracks():
     all_playlist = [] #do a list to store all the song
     iter = 0 
     while True: #while loop beceause the limit is 50 and if their are more music or less we have to break basicall_playlisty continue until we saw all the music 
-        items = sp.current_user_playlists(limit=50, offset= iter * 50 )['items']
+        items = sp.current_user_playlists(limit=50, offset= iter * 50 )['items'] #this will get the list of the 50 first items of the list aka the playlist 
         iter += 1
-        all_playlist += items
-        if(len(items) < 50 ):
+        all_playlist += items # adding what we just retrieve to the list of all song 
+        if(len(items) < 50 ): #to break the look since it is a while true we check if the list of all items we retrieve is less than 50 we break which mean that we finish to retrieve
             break
     get_album_track(token_info, all_playlist)
     return str(all_playlist)
