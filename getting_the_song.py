@@ -60,7 +60,10 @@ def get_token():
         raise Exception("token info is missing")
     
     now = int(time.time()) # get the current time 
-    if 'expires_at' in token_info and token_info['expires_at'] - now < 60: # check if the current token will expire soon
+    
+    # check if the current token will expire soon
+    
+    if 'expires_at' in token_info and token_info['expires_at'] - now < 60: 
         sp_oauth = create_spotify_oauth() #create a new object oauth
         token_info = sp_oauth.refresh_access_token(token_info['refresh_token']) #give the refresh token
         session[TOKEN_INFO] = token_info # update the token info
@@ -75,8 +78,8 @@ def get_token():
 # HERE I WANT TO CREATE A FUNCTION THAT TRAVERSE all_playlist THE PLAYLIST THAT I HAVE SAVED THEN CALL GET TRACKS ON EACH PLAYLIST 
 def get_album_track(token_info, all_playlist):
     sp = spotipy.Spotify(auth= token_info['access_token']) # retrieve the information needed in the access token 
+    all_song = [] #do a list to store all the song in the playlist
     for i in range (len(all_playlist)):
-        all_song = [] #do a list to store all the song in the playlist
         playlist_id = all_playlist[i]['id']
         iter = 0
         while True: #while loop beceause the limit is 50 and if their are more music or less we have to break basicall_playlisty continue until we saw all the music 
@@ -94,12 +97,11 @@ def get_album_track(token_info, all_playlist):
             if(len(items) < 100 ):
                 break
         all_playlist.append( all_song)
-    
     #Convert to dataframe then saved it to CSV
-    df = pd.DataFrame(all_song, columns=["song names"])
+    df = pd.DataFrame(all_song, columns=["name"])#, "artist", "album", "track_id"])
     df.to_csv('songs.csv', index=False)
     return "ok"
-    #return all_playlist
+    
 
 
 

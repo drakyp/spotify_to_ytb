@@ -1,0 +1,63 @@
+from bs4 import BeautifulSoup
+from requests_html import HTMLSession
+from pathlib import Path
+import yt_dlp 
+import pandas 
+import os 
+
+
+def ScrapeVidId(query):
+    print(f"Getting the video id for : {query}")
+    BASIC="https://www.youtube.com/results?search_query="
+    URL = (BASIC + query )
+    URL.replace(" ", "+")
+    #page = requests.get(URL)
+    session = HTMLSession()
+    response = session.get(URL)
+    response.html.render(sleep=1)
+    soup = BeautifulSoup(response.html.html, "html.parser")
+
+    results = soup.find('a', id= "video-title")
+    if results:
+        vid_url = "https://www.youtube.com" + results['href'].split('&')[0]
+        return vid_url
+    else:
+        print("Prout")
+        return None
+
+def DownloadVideosFromTitles(list_of_songs):
+    ids = []
+    for index, item in enumerate(list_of_songs):
+        vid_id = ScrapeVidId(item)
+        if vid_id:
+            ids += [vid_id]
+    print("Downloading songs")
+    DownloadsVideoFromIds(ids)
+
+
+def DownloadsVideoFromIds(list_of_videos):
+    SAVE_PATH = str(os.path.join(Path.home(), "Downloads/songs"))
+    try:
+        os.mkdir(SAVE_PATH)
+    except:
+        print("Downloads folder exists")
+    ydl_opts = {
+        'format' : 'bestaudio/best',
+        'postprocessors' : [{
+            'key' : 'FFmpegExtractAudio',
+            'preferredcodec' : 'mp3',
+            'preferredquality' : '192',
+        }],
+        'outtmpl' : SAVE_PATH + '/%(title)s.%(ext)s',
+        'default_search' : 'ytsearch',
+    }
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        ydl.download(list_of_videos)
+    
+def __main__():
+
+	data = pandas.read_csv('songs.csv')
+	data = data['name'].tolist()
+	print("Found ", len(data), " songs!")
+	DownloadVideosFromTitles(data[0:1])
+__main__()
