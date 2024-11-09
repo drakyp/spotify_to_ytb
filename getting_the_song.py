@@ -2,6 +2,7 @@
 from flask import Flask, request, url_for, session, redirect 
 import spotipy 
 import time 
+import pandas as pd
 from spotipy.oauth2 import SpotifyOAuth
 
 app = Flask(__name__)
@@ -93,6 +94,11 @@ def get_album_track(token_info, all_playlist):
             if(len(items) < 100 ):
                 break
         all_playlist.append( all_song)
+    
+    #Convert to dataframe then saved it to CSV
+    df = pd.DataFrame(all_song, columns=["song names"])
+    df.to_csv('songs.csv', index=False)
+    return "ok"
     #return all_playlist
 
 
