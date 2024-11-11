@@ -7,10 +7,10 @@ from spotipy.oauth2 import SpotifyOAuth
 
 app = Flask(__name__)
 
-app.secret_key = "Sviosnfvso03423s"
-app.config['SESSION_COOKIE_NAME'] = 'William Cookie'
+app.secret_key = "" # something random
+app.config['SESSION_COOKIE_NAME'] = '' # your name and cookie session 
 TOKEN_INFO = "token_info" #key to get the information in the session dictonary 
-client_id = "9bd2a1a7000747058f80f6d95f4bb31a"
+client_id = "" # the client id from your spotify app 
 
 
 @app.route('/')
@@ -110,7 +110,7 @@ def create_spotify_oauth():
     redirect_uri = url_for('redirectPage', _external = True)
     print(f"redirect url {redirect_uri}")
     return SpotifyOAuth ( # creating the object we want 
-        client_id = "9bd2a1a7000747058f80f6d95f4bb31a",
-        client_secret = "cd1105a307404b5bba44442914ff711f",
+        client_id = client_id,
+        client_secret = "", # your client secret from the spotify app
         redirect_uri = redirect_uri,
         scope = "user-library-read")

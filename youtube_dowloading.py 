@@ -60,11 +60,14 @@ def DownloadVideosFromTitles(list_of_songs):
 
 
 def DownloadsVideoFromIds(list_of_videos):
+    #Creates a string SAVE_PATH that represents the directory path where the downloaded songs will be saved.
     SAVE_PATH = str(os.path.join(Path.home(), "Downloads/songs"))
+    #try to create the folder where we want to save the songs
     try:
         os.mkdir(SAVE_PATH)
     except:
         print("Downloads folder exists")
+    # configure the download options for the yt_dlp using a dictionnary ydl_opts
     ydl_opts = {
         'format' : 'bestaudio/best',
         'postprocessors' : [{
@@ -75,13 +78,17 @@ def DownloadsVideoFromIds(list_of_videos):
         'outtmpl' : SAVE_PATH + '/%(title)s.%(ext)s',
         'default_search' : 'ytsearch',
     }
+    #creating a youtube_dl object then download it 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         ydl.download(list_of_videos)
     
 def __main__():
-
+    #read the csv files names "songs.csv"
 	data = pandas.read_csv('songs.csv')
+    #extract the column name of the files and transform it to a list
 	data = data['name'].tolist()
+    #print the number of songs we found 
 	print("Found ", len(data), " songs!")
+    #calling the function to start download them
 	DownloadVideosFromTitles(data[2:])
 __main__()
